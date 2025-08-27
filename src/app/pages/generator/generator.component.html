@@ -1,0 +1,215 @@
+<div class="music-generator-container">
+  <!-- Header Section -->
+  <header class="hero-section">
+    <h1 class="main-title">🎵 Music AI Generator</h1>
+    <p class="subtitle">Created by <strong>Sergie Code</strong> - AI Tools for Musicians</p>
+    <p class="description">Transform your ideas into music using artificial intelligence</p>
+  </header>
+
+  <!-- Server Status Indicator -->
+  <div class="server-status" [ngClass]="isServerOnline ? 'status-online' : 'status-offline'">
+    <div class="status-indicator">
+      <span class="status-dot" [ngClass]="isServerOnline ? 'dot-online' : 'dot-offline'"></span>
+      <span class="status-text">{{ isServerOnline ? 'Server Online' : 'Server Offline' }}</span>
+    </div>
+    <small class="status-note" *ngIf="!isServerOnline">
+      Make sure the backend server is running on http://127.0.0.1:8000
+    </small>
+  </div>
+
+  <!-- Error Display -->
+  <div *ngIf="error" class="alert alert-error">
+    <div class="alert-content">
+      <span class="alert-icon">⚠️</span>
+      <span class="alert-message">{{ error }}</span>
+      <button class="alert-close" (click)="clearError()" aria-label="Close error">×</button>
+    </div>
+  </div>
+
+  <!-- Generation Form -->
+  <div class="form-container">
+    <form [formGroup]="musicForm" (ngSubmit)="onSubmit()" class="generation-form">
+      <h2 class="form-title">Generate Your Music</h2>
+      
+      <!-- Prompt Input -->
+      <div class="form-group">
+        <label for="prompt" class="form-label">
+          Music Description
+          <span class="required">*</span>
+        </label>
+        <textarea
+          id="prompt"
+          formControlName="prompt"
+          placeholder="Describe the music you want to generate..."
+          class="form-textarea"
+          [class.form-input-error]="hasFieldError('prompt')"
+          rows="4"
+        ></textarea>
+        <div class="form-help">
+          Be specific about genre, mood, instruments, and style (1-500 characters)
+        </div>
+        <div *ngIf="hasFieldError('prompt')" class="form-error">
+          {{ getErrorMessage('prompt') }}
+        </div>
+      </div>
+
+      <!-- Example Prompts -->
+      <div class="example-prompts">
+        <h4 class="examples-title">💡 Try these examples:</h4>
+        <div class="examples-grid">
+          <button
+            type="button"
+            *ngFor="let example of examplePrompts"
+            class="example-button"
+            (click)="useExamplePrompt(example)"
+            [disabled]="isGenerating"
+          >
+            {{ example }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Duration Input -->
+      <div class="form-group">
+        <label for="duration" class="form-label">
+          Duration: {{ musicForm.get('duration')?.value }} seconds
+          <span class="required">*</span>
+        </label>
+        <input
+          type="range"
+          id="duration"
+          formControlName="duration"
+          min="5"
+          max="300"
+          step="5"
+          class="form-range"
+          [disabled]="isGenerating"
+        >
+        <div class="duration-labels">
+          <span>5 sec</span>
+          <span>30 sec</span>
+          <span>1 min</span>
+          <span>2 min</span>
+          <span>5 min</span>
+        </div>
+        <div class="form-help">
+          Choose duration between 5 seconds and 5 minutes
+        </div>
+        <div *ngIf="hasFieldError('duration')" class="form-error">
+          {{ getErrorMessage('duration') }}
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="submit-button"
+        [disabled]="musicForm.invalid || isGenerating || !isServerOnline"
+        [class.button-loading]="isGenerating"
+      >
+        <span *ngIf="isGenerating" class="loading-spinner"></span>
+        <span class="button-text">
+          {{ isGenerating ? 'Generating Music...' : '🎵 Generate Music' }}
+        </span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Progress Display -->
+  <div *ngIf="currentTrack" class="progress-container">
+    <div class="progress-header">
+      <h3 class="progress-title">Generation Progress</h3>
+      <span class="status-badge" [ngClass]="getStatusBadgeClass()">
+        {{ currentTrack.status | titlecase }}
+      </span>
+    </div>
+
+    <!-- Track Information -->
+    <div class="track-info">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Track ID:</span>
+          <span class="info-value">{{ currentTrack.track_id }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Prompt:</span>
+          <span class="info-value">{{ currentTrack.prompt }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Duration:</span>
+          <span class="info-value">{{ currentTrack.duration }} seconds</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Created:</span>
+          <span class="info-value">{{ currentTrack.created_at | date:'medium' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section">
+      <div class="progress-label">
+        <span>Progress: {{ currentTrack.progress }}%</span>
+        <span *ngIf="currentTrack.status === 'processing'" class="progress-time">
+          Est. completion: {{ currentTrack.estimated_completion | date:'shortTime' }}
+        </span>
+      </div>
+      <div class="progress-bar">
+        <div 
+          class="progress-fill" 
+          [style.width.%]="currentTrack.progress"
+          [ngClass]="{
+            'progress-processing': currentTrack.status === 'processing',
+            'progress-completed': currentTrack.status === 'completed',
+            'progress-failed': currentTrack.status === 'failed'
+          }"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <!-- Download Button -->
+      <button
+        *ngIf="currentTrack.status === 'completed' && currentTrack.download_url"
+        class="action-button download-button"
+        (click)="downloadTrack()"
+      >
+        <span class="button-icon">📥</span>
+        Download Track
+      </button>
+
+      <!-- Retry Button (for failed generations) -->
+      <button
+        *ngIf="currentTrack.status === 'failed'"
+        class="action-button retry-button"
+        (click)="onSubmit()"
+        [disabled]="!isServerOnline"
+      >
+        <span class="button-icon">🔄</span>
+        Try Again
+      </button>
+
+      <!-- Reset Button -->
+      <button
+        *ngIf="currentTrack.status === 'completed' || currentTrack.status === 'failed'"
+        class="action-button secondary-button"
+        (click)="reset()"
+      >
+        <span class="button-icon">🆕</span>
+        Generate Another
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="footer-text">
+      🎼 Made with ❤️ by <strong>Sergie Code</strong> | 
+      <a href="https://www.youtube.com/@SergieCode" target="_blank" rel="noopener">YouTube Channel</a>
+    </p>
+    <p class="footer-note">
+      Empowering musicians with AI technology
+    </p>
+  </footer>
+</div>
