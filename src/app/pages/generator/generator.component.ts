@@ -109,6 +109,9 @@ export class GeneratorComponent implements OnInit, OnDestroy {
     this.error = null;
     this.currentTrack = null;
 
+    // Disable form during generation
+    this.musicForm.disable();
+
     const request: MusicGenerationRequest = {
       prompt: this.musicForm.value.prompt.trim(),
       duration: this.musicForm.value.duration
@@ -126,6 +129,8 @@ export class GeneratorComponent implements OnInit, OnDestroy {
           console.error('Generation failed:', error);
           this.error = error.message;
           this.isGenerating = false;
+          // Re-enable form on error
+          this.musicForm.enable();
         }
       })
     );
@@ -145,16 +150,22 @@ export class GeneratorComponent implements OnInit, OnDestroy {
           
           if (status.status === 'completed') {
             this.isGenerating = false;
+            // Re-enable form when generation completes
+            this.musicForm.enable();
             console.log('Generation completed!', status);
           } else if (status.status === 'failed') {
             this.error = 'Music generation failed. Please try again.';
             this.isGenerating = false;
+            // Re-enable form on failure
+            this.musicForm.enable();
           }
         },
         error: (error) => {
           console.error('Polling failed:', error);
           this.error = error.message;
           this.isGenerating = false;
+          // Re-enable form on error
+          this.musicForm.enable();
         }
       })
     );
@@ -186,6 +197,8 @@ export class GeneratorComponent implements OnInit, OnDestroy {
       prompt: '', 
       duration: 30 
     });
+    // Ensure form is enabled
+    this.musicForm.enable();
   }
 
   /**
@@ -193,6 +206,8 @@ export class GeneratorComponent implements OnInit, OnDestroy {
    */
   useExamplePrompt(prompt: string) {
     this.musicForm.patchValue({ prompt });
+    // Clear any existing error when user uses example prompt
+    this.error = null;
   }
 
   /**

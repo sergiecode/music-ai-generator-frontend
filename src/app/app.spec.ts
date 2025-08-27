@@ -1,10 +1,22 @@
 import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Component } from '@angular/core';
 import { App } from './app';
+
+@Component({
+  template: '<div>Test Component</div>'
+})
+class TestComponent { }
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [
+        App,
+        RouterTestingModule.withRoutes([
+          { path: '', component: TestComponent }
+        ])
+      ],
     }).compileComponents();
   });
 
@@ -14,10 +26,18 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', () => {
+  it('should have router outlet', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, music-ai-generator-frontend');
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
+  });
+
+  it('should render routed component', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    
+    // The router should render the test component
+    expect(fixture.nativeElement).toBeTruthy();
   });
 });

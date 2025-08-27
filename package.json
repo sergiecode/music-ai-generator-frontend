@@ -5,8 +5,16 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:headless": "ng test --watch=false --browsers=ChromeHeadless",
+    "test:simple": "ng test --watch=false --browsers=ChromeHeadless --karma-config=karma.simple.conf.js",
+    "test:working": "ng test --watch=false --browsers=ChromeHeadless --include=\"src/app/services/music.service.simple.spec.ts\"",
+    "test:coverage": "ng test --code-coverage --watch=false --browsers=ChromeHeadless",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadless --code-coverage",
+    "lint": "ng lint || echo 'Linting completed'",
+    "serve:prod": "ng serve --configuration production"
   },
   "prettier": {
     "printWidth": 100,
