@@ -335,10 +335,21 @@ This project is created for educational purposes by Sergie Code. Feel free to us
 **Sergie Code** is a passionate software engineer and programming educator who creates AI tools for musicians and content creators. Through YouTube tutorials and open-source projects, Sergie helps developers learn modern web technologies while building practical, real-world applications.
 
 ### **Connect with Sergie Code**
-- 🎥 **YouTube**: Programming tutorials and live coding
-- 🐱 **GitHub**: Open source projects and code examples
-- 💼 **LinkedIn**: Professional updates and tech insights
-- 🐦 **Twitter**: Quick tips and tech thoughts
+- 📸 Instagram: https://www.instagram.com/sergiecode
+
+- 🧑🏼‍💻 LinkedIn: https://www.linkedin.com/in/sergiecode/
+
+- 📽️Youtube: https://www.youtube.com/@SergieCode
+
+- 😺 Github: https://github.com/sergiecode
+
+- 👤 Facebook: https://www.facebook.com/sergiecodeok
+
+- 🎞️ Tiktok: https://www.tiktok.com/@sergiecode
+
+- 🕊️Twitter: https://twitter.com/sergiecode
+
+- 🧵Threads: https://www.threads.net/@sergiecode
 
 ---
 
