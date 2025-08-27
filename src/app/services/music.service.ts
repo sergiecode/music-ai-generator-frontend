@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, interval, throwError } from 'rxjs';
-import { switchMap, takeWhile, catchError } from 'rxjs/operators';
+import { switchMap, takeWhile, catchError, startWith } from 'rxjs/operators';
 
 export interface MusicGenerationRequest {
   prompt: string;
@@ -125,6 +125,8 @@ export class MusicService {
     return prompt
       .trim()
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '') // Remove event handlers like onerror, onclick, etc.
+      .replace(/<[^>]*>/g, '') // Remove all HTML tags
       .substring(0, 500); // Max length validation
   }
 

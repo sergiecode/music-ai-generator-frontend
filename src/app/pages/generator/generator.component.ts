@@ -193,6 +193,7 @@ export class GeneratorComponent implements OnInit, OnDestroy {
    */
   useExamplePrompt(prompt: string) {
     this.musicForm.patchValue({ prompt });
+    this.error = null;  // Clear any existing errors
   }
 
   /**

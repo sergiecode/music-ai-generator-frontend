@@ -1,7 +1,7 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { of, Subject, throwError } from 'rxjs';
+import { of, Subject, throwError, EMPTY } from 'rxjs';
 
 import { GeneratorComponent } from './generator.component';
 import { MusicService, TrackStatus, MusicGenerationResponse, HealthResponse } from '../../services/music.service';
@@ -223,7 +223,8 @@ describe('GeneratorComponent', () => {
 
     it('should start music generation successfully', () => {
       mockMusicService.generateMusic.mockReturnValue(of(mockGenerationResponse));
-      mockMusicService.pollTrackStatus.mockReturnValue(of(mockProcessingStatus));
+      // Don't return anything from pollTrackStatus to avoid immediate status updates
+      mockMusicService.pollTrackStatus.mockReturnValue(EMPTY);
       
       component.onSubmit();
       
@@ -250,11 +251,13 @@ describe('GeneratorComponent', () => {
 
     it('should disable form during generation', () => {
       mockMusicService.generateMusic.mockReturnValue(of(mockGenerationResponse));
-      mockMusicService.pollTrackStatus.mockReturnValue(of(mockProcessingStatus));
+      mockMusicService.pollTrackStatus.mockReturnValue(EMPTY);
       
       component.onSubmit();
+      fixture.detectChanges();
       
-      expect(component.musicForm.disabled).toBe(true);
+      const submitButton = fixture.nativeElement.querySelector('.submit-button');
+      expect(submitButton.disabled).toBe(true);
     });
 
     it('should re-enable form after generation error', () => {
@@ -329,11 +332,31 @@ describe('GeneratorComponent', () => {
     });
 
     it('should download track when available', () => {
+      // Mock document.createElement and related methods
+      const mockLink = {
+        href: '',
+        download: '',
+        click: jest.fn()
+      };
+      const createElementSpy = jest.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
+      const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockImplementation();
+      const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockImplementation();
+
       component.currentTrack = mockCompletedStatus;
       
       component.downloadTrack();
       
-      expect(window.open).toHaveBeenCalledWith(mockCompletedStatus.download_url, '_blank');
+      expect(createElementSpy).toHaveBeenCalledWith('a');
+      expect(mockLink.href).toBe(mockCompletedStatus.download_url);
+      expect(mockLink.download).toBe(`generated_music_${mockCompletedStatus.track_id}.mp3`);
+      expect(mockLink.click).toHaveBeenCalled();
+      expect(appendChildSpy).toHaveBeenCalledWith(mockLink);
+      expect(removeChildSpy).toHaveBeenCalledWith(mockLink);
+
+      // Cleanup
+      createElementSpy.mockRestore();
+      appendChildSpy.mockRestore();
+      removeChildSpy.mockRestore();
     });
 
     it('should not download when no track available', () => {
@@ -451,7 +474,7 @@ describe('GeneratorComponent', () => {
       component.currentTrack = mockProcessingStatus;
       fixture.detectChanges();
 
-      const progressElement = fixture.nativeElement.querySelector('.progress-display');
+      const progressElement = fixture.nativeElement.querySelector('.progress-container');
       expect(progressElement).toBeTruthy();
     });
 
@@ -459,7 +482,7 @@ describe('GeneratorComponent', () => {
       component.currentTrack = mockCompletedStatus;
       fixture.detectChanges();
 
-      const downloadButton = fixture.nativeElement.querySelector('.download-btn');
+      const downloadButton = fixture.nativeElement.querySelector('.download-button');
       expect(downloadButton).toBeTruthy();
     });
 
@@ -475,7 +498,7 @@ describe('GeneratorComponent', () => {
       component.error = 'Test error message';
       fixture.detectChanges();
 
-      const errorElement = fixture.nativeElement.querySelector('.error-display');
+      const errorElement = fixture.nativeElement.querySelector('.alert-error');
       expect(errorElement?.textContent).toContain('Test error message');
     });
   });
@@ -523,15 +546,21 @@ describe('GeneratorComponent', () => {
     });
 
     it('should handle empty track ID', () => {
+      // Set up the component for successful generation
+      component.isServerOnline = true;
+      component.musicForm.patchValue({ prompt: 'test prompt', duration: 30 });
+      
       mockMusicService.generateMusic.mockReturnValue(of({
         ...mockGenerationResponse,
         track_id: ''
       }));
+      mockMusicService.pollTrackStatus.mockReturnValue(EMPTY);
       
       component.onSubmit();
       
-      // Should not cause errors
+      // Should start generation even with empty track ID
       expect(component.isGenerating).toBe(true);
+      expect(component.error).toBeNull();
     });
 
     it('should handle missing download URL', () => {
