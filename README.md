@@ -318,23 +318,6 @@ This project is part of Sergie Code's educational content on YouTube. Feel free 
 - [RxJS Guide](https://rxjs.dev/guide/overview)
 
 ### **Sergie Code's Content**
-- 🎥 [YouTube Channel](https://youtube.com/@sergieCode) - Programming tutorials
-- 🐱 [GitHub](https://github.com/sergiecode) - Open source projects
-- 📝 [Blog](https://sergieCode.com) - Technical articles and guides
-
----
-
-## 📄 **License**
-
-This project is created for educational purposes by Sergie Code. Feel free to use it for learning and building your own AI music tools!
-
----
-
-## 🎯 **About Sergie Code**
-
-**Sergie Code** is a passionate software engineer and programming educator who creates AI tools for musicians and content creators. Through YouTube tutorials and open-source projects, Sergie helps developers learn modern web technologies while building practical, real-world applications.
-
-### **Connect with Sergie Code**
 - 📸 Instagram: https://www.instagram.com/sergiecode
 
 - 🧑🏼‍💻 LinkedIn: https://www.linkedin.com/in/sergiecode/
@@ -350,6 +333,16 @@ This project is created for educational purposes by Sergie Code. Feel free to us
 - 🕊️Twitter: https://twitter.com/sergiecode
 
 - 🧵Threads: https://www.threads.net/@sergiecode
+
+## 🎯 **About Sergie Code**
+
+**Sergie Code** is a passionate software engineer and programming educator who creates AI tools for musicians and content creators. Through YouTube tutorials and open-source projects, Sergie helps developers learn modern web technologies while building practical, real-world applications.
+
+### **Connect with Sergie Code**
+- 🎥 **YouTube**: Programming tutorials and live coding
+- 🐱 **GitHub**: Open source projects and code examples
+- 💼 **LinkedIn**: Professional updates and tech insights
+- 🐦 **Twitter**: Quick tips and tech thoughts
 
 ---
 
